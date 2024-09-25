@@ -47,13 +47,15 @@ namespace TrilhaApiDesafio.Controllers
         [HttpGet("ObterPorTitulo")]
         public IActionResult ObterPorTitulo(string titulo)
         {
-            var tarefa = _context.Tarefas.Find(titulo);
+            // Use Where clause to find tasks with matching titles (case-insensitive)
+            var tarefas = _context.Tarefas.Where(t => t.Titulo.ToLower().Contains(titulo.ToLower()));
 
-            if (tarefa == null)
+            if (!tarefas.Any())
             {
                 return NotFound();
             }
-            return Ok(tarefa);
+
+            return Ok(tarefas);
         }
 
         [HttpGet("ObterPorData")]
@@ -83,8 +85,13 @@ namespace TrilhaApiDesafio.Controllers
             if (tarefa.Data == DateTime.MinValue)
                 return BadRequest(new { Erro = "A data da tarefa não pode ser vazia" });
 
+            // TODO: Atualizar as informações da variável tarefaBanco com a tarefa recebida via parâmetro
+            tarefaBanco.Titulo = tarefa.Titulo;
+            tarefaBanco.Descricao = tarefa.Descricao;
+            tarefaBanco.Data = tarefa.Data;
             tarefaBanco.Status = tarefa.Status;
-
+            
+            // TODO: Atualizar a variável tarefaBanco no EF e salvar as mudanças (save changes)
             _context.Tarefas.Update(tarefaBanco);
             _context.SaveChanges();
             return Ok();
